@@ -10,7 +10,20 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Extend from Next.js recommended configs
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  // Add react-hooks plugin
+  "plugin:react-hooks/recommended", // Optional: This is for the most common React Hooks rules
+
+  // Custom rules for React hooks
+  {
+    rules: {
+      "react-hooks/rules-of-hooks": "error", // Ensures hooks are used correctly
+      "react-hooks/exhaustive-deps": "warn", // Warns about missing dependencies in useEffect
+    },
+  },
 ];
 
 export default eslintConfig;
+
