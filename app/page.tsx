@@ -14,6 +14,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [images, setImages] = useState<Image[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("nature");
+  const [category, setCategory] = useState<string>("nature");
   const [loading, setLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
@@ -26,11 +27,11 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  const fetchImages = async (pageNumber: number) => {
+  const fetchImages = async (pageNumber: number, searchQuery: string, category: string) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://pixabay.com/api/?key=49055648-29167078f83e74b1df616ded0&q=${searchQuery}&image_type=photo&page=${pageNumber}`
+        `https://pixabay.com/api/?key=49055648-29167078f83e74b1df616ded0&q=${searchQuery}&category=${category}&image_type=photo&page=${pageNumber}`
       );
       const newImages = response.data.hits;
 
@@ -47,12 +48,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchImages(page);
-  }, [searchQuery]);
+    fetchImages(page, searchQuery, category);
+  }, [searchQuery, category]);
 
   useEffect(() => {
     if (page > 1) {
-      fetchImages(page);
+      fetchImages(page, searchQuery, category);
     }
   }, [page]);
 
@@ -64,6 +65,13 @@ export default function Home() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    setImages([]);
+    setPage(1);
+    setHasMore(true);
+  };
+
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
     setImages([]);
     setPage(1);
     setHasMore(true);
@@ -110,6 +118,28 @@ export default function Home() {
           placeholder="Search for images..."
           className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg"
         />
+
+        <select
+          value={category}
+          onChange={(e) => handleCategoryChange(e.target.value)}
+          className="p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="nature">Nature</option>
+          <option value="technology">Technology</option>
+          <option value="food">Food</option>
+          <option value="animals">Animals</option>
+          <option value="sports">Sports</option>
+          <option value="buildings">Buildings</option>
+          <option value="business">Business</option>
+          <option value="people">People</option>
+          <option value="travel">Travel</option>
+          <option value="fashion">Fashion</option>
+          <option value="music">Music</option>
+          <option value="education">Education</option>
+          <option value="art">Art</option>
+          <option value="health">Health</option>
+          <option value="science">Science</option>
+        </select>
 
         <input
           type="number"
@@ -179,6 +209,8 @@ export default function Home() {
     </div>
   );
 }
+
+
 
 
 
