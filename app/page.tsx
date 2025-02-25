@@ -19,6 +19,8 @@ export default function Home() {
   const [page, setPage] = useState<number>(1);
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
   const [fileFormat, setFileFormat] = useState<"jpg" | "png">("jpg");
+  const [width, setWidth] = useState<number>(500);
+  const [height, setHeight] = useState<number>(500);
 
   useEffect(() => {
     setMounted(true);
@@ -72,34 +74,22 @@ export default function Home() {
       const response = await fetch(url);
       const blob = await response.blob();
 
-      if (format === "png") {
-        const imageBitmap = await createImageBitmap(blob);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+      const imageBitmap = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-        if (ctx) {
-          canvas.width = imageBitmap.width;
-          canvas.height = imageBitmap.height;
-          ctx.drawImage(imageBitmap, 0, 0);
+      if (ctx) {
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(imageBitmap, 0, 0, width, height);
 
-          const pngURL = canvas.toDataURL("image/png");
-          const link = document.createElement("a");
-          link.href = pngURL;
-          link.download = `image-${id}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        }
-      } else {
-        // Download as JPG
-        const objectURL = URL.createObjectURL(blob);
+        const finalImage = format === "png" ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg");
         const link = document.createElement("a");
-        link.href = objectURL;
-        link.download = `image-${id}.jpg`;
+        link.href = finalImage;
+        link.download = `image-${id}.${format}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(objectURL);
       }
     } catch (error) {
       console.error("Error downloading image:", error);
@@ -110,15 +100,31 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Free Images from Pixabay</h1>
+      <h1 className="text-xl font-bold mb-4">Image Resizer & Downloader</h1>
 
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder="Search for images..."
-          className="w-full p-2 border border-gray-300 rounded-lg"
+          className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg"
+        />
+
+        <input
+          type="number"
+          value={width}
+          onChange={(e) => setWidth(Number(e.target.value))}
+          placeholder="Width"
+          className="w-24 p-2 border border-gray-300 rounded-lg"
+        />
+
+        <input
+          type="number"
+          value={height}
+          onChange={(e) => setHeight(Number(e.target.value))}
+          placeholder="Height"
+          className="w-24 p-2 border border-gray-300 rounded-lg"
         />
 
         <select
@@ -173,6 +179,7 @@ export default function Home() {
     </div>
   );
 }
+
 
 
 
